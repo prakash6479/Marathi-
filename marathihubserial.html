@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marathi HUB</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- CSS VARIABLES --- */
+        :root {
+            --primary: #3ea6ff; 
+            --primary-dark: #065fd4;
+            --secondary: #f2f2f2;
+            --accent-red: #ff0000;
+            --white: #ffffff; 
+            --black: #0f0f0f; 
+            --text-main: #0f0f0f;
+            --text-light: #606060;
+            --border: #e5e5e5;
+            --sidebar-w: 240px; 
+            --header-h: 60px;
+        }
+
+        body.dark-mode {
+            --primary: #3ea6ff;
+            --secondary: #272727;
+            --white: #0f0f0f;
+            --black: #ffffff;
+            --text-main: #f1f1f1;
+            --text-light: #aaaaaa;
+            --border: #3f3f3f;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", sans-serif; }
+        body { background: var(--white); color: var(--text-main); overflow-x: hidden; }
+        button { cursor: pointer; border: none; background: none; font-family: inherit; transition: 0.2s; }
+        img { object-fit: cover; display: block; }
+        
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* --- NAVBAR --- */
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--header-h);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px; background: var(--white); z-index: 1000;
+            border-bottom: 1px solid var(--border);
+            /* Prevent overflow on mobile */
+            max-width: 100vw;
+        }
+        .nav-left { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+        
+        .logo { 
+            display: flex; align-items: center; gap: 6px; 
+            font-weight: 700; font-size: 20px; letter-spacing: -0.5px; cursor: pointer;
+            white-space: nowrap; 
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .logo span { color: var(--accent-red); font-size: 32px; }
+        
+        /* Search Box */
+        .search-box { display: flex; flex: 1; max-width: 500px; margin: 0 20px; border: 1px solid var(--border); border-radius: 40px; overflow: hidden; }
+        .search-box input { flex: 1; padding: 8px 16px; border: none; outline: none; background: var(--white); color: var(--text-main); }
+        .search-btn { width: 60px; background: var(--secondary); display: flex; align-items: center; justify-content: center; border-left: 1px solid var(--border); }
+        
+        /* Nav Right - FIX FOR MOBILE OVERFLOW */
+        .nav-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        
+        .icon-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--text-main); position: relative; }
+        .icon-btn:hover { background: var(--secondary); transform: scale(1.1); }
+        
+        .notif-badge { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: red; border-radius: 50%; display: none; }
+
+        /* Button Style */
+        .btn-pill { background: var(--secondary); padding: 8px 16px; border-radius: 18px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: 0.2s; white-space: nowrap; }
+        .btn-pill:hover { background: #dcdcdc; }
+        .btn-pill.active { background: var(--black); color: var(--white); }
+
+        /* --- MOBILE RESPONSIVE FIX (Header Elements) --- */
+        @media (max-width: 600px) {
+            nav { padding: 0 10px; } /* Reduce padding */
+            .logo { font-size: 16px; gap: 4px; }
+            .logo span { font-size: 24px; }
+            .nav-left { gap: 8px; }
+            .nav-right { gap: 6px; }
+            
+            /* Make Sign In Button Compact */
+            .btn-pill { padding: 6px 10px; font-size: 12px; }
+            .btn-pill .material-symbols-rounded { font-size: 18px; }
+            
+            /* Slightly smaller icons */
+            .icon-btn { width: 34px; height: 34px; }
+            
+            /* Hide Search on Mobile */
+            .mobile-hide { display: none !important; }
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            position: fixed; top: var(--header-h); left: 0; bottom: 0;
+            width: var(--sidebar-w); background: var(--white);
+            overflow-y: auto; z-index: 900; padding: 12px;
+            transform: translateX(-100%); transition: transform 0.3s;
+        }
+        @media (min-width: 769px) { .sidebar { transform: translateX(0); } }
+        .sidebar.open { transform: translateX(0); box-shadow: 2px 0 10px rgba(0,0,0,0.2); }
+
+        .menu-item { display: flex; align-items: center; gap: 20px; padding: 10px 14px; border-radius: 10px; cursor: pointer; color: var(--text-main); font-size: 14px; margin-bottom: 5px; }
+        .menu-item:hover { background: var(--secondary); }
+        .menu-item.active { background: var(--secondary); font-weight: 600; }
+        .menu-item span.material-symbols-rounded { font-size: 24px; }
+
+        /* --- MAIN CONTENT --- */
+        .main-container { margin-top: var(--header-h); padding: 24px; transition: 0.3s; min-height: 100vh; }
+        @media (min-width: 769px) { .main-container { margin-left: var(--sidebar-w); } }
+        @media (max-width: 600px) { .main-container { padding: 12px; } }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+        @media (max-width: 600px) { .grid { grid-template-columns: 1fr; gap: 20px; } }
+
+        .card { 
+            cursor: pointer; display: flex; flex-direction: column; gap: 10px; 
+            animation: fadeIn 0.5s ease forwards; opacity: 0; 
+        }
+        .card:hover { transform: translateY(-5px); }
+        
+        .thumb { width: 100%; aspect-ratio: 16/9; border-radius: 12px; background: #ddd; overflow: hidden; position: relative; }
+        .thumb img { width: 100%; height: 100%; transition: 0.3s; }
+        .card:hover .thumb img { transform: scale(1.05); }
+
+        .meta { display: flex; gap: 12px; }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background: #999; flex-shrink: 0; }
+        .details h3 { font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .details p { font-size: 12px; color: var(--text-light); }
+
+        /* --- NOTIFICATION PAGE --- */
+        .notif-page-container { max-width: 800px; margin: 0 auto; display: none; animation: fadeIn 0.3s; }
+        .notif-row { display: flex; gap: 15px; padding: 15px; border-bottom: 1px solid var(--border); cursor: pointer; align-items: flex-start; transition: 0.2s; }
+        .notif-row:hover { background: var(--secondary); }
+        .notif-row img { width: 120px; height: 68px; border-radius: 8px; }
+        .notif-content h4 { font-size: 15px; margin-bottom: 5px; }
+        .notif-content p { font-size: 12px; color: var(--text-light); }
+
+        /* --- WATCH PAGE --- */
+        .watch-overlay {
+            position: fixed; top: var(--header-h); left: 0; width: 100%; height: calc(100vh - var(--header-h));
+            background: var(--white); z-index: 1100; overflow-y: auto; display: none;
+        }
+        .watch-grid {
+            display: grid; grid-template-columns: 1fr 350px; gap: 24px; max-width: 1400px; margin: 0 auto; padding: 24px;
+        }
+        @media (max-width: 900px) { .watch-grid { grid-template-columns: 1fr; padding: 0; } }
+        @media (max-width: 600px) { .watch-content { padding: 10px; } }
+
+        .player-section { width: 100%; }
+        .video-frame { width: 100%; aspect-ratio: 16/9; background: black; }
+        .video-frame iframe { width: 100%; height: 100%; border: none; }
+        
+        .video-info { padding: 16px; }
+
+        .related-card { display: flex; gap: 8px; cursor: pointer; margin-bottom: 10px; }
+        .related-thumb { width: 168px; height: 94px; border-radius: 8px; background: #ccc; flex-shrink: 0; overflow: hidden; }
+
+        /* --- ADMIN & MODALS --- */
+        .modal-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .modal-box { background: var(--white); width: 90%; max-width: 400px; padding: 24px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: popIn 0.3s; }
+        .inp-field { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid var(--border); border-radius: 4px; outline: none; background: var(--secondary); color: var(--text-main); }
+        .btn-primary { width: 100%; background: var(--primary); color: white; padding: 10px; border-radius: 4px; font-weight: 600; margin-top: 10px; }
+        
+        .studio-container { padding: 20px; max-width: 1000px; margin: 0 auto; display: none; }
+        .video-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border); }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-left">
+            <button class="icon-btn" onclick="toggleSidebar()"><span class="material-symbols-rounded">menu</span></button>
+            <div class="logo" onclick="goHome()">
+                <span class="material-symbols-rounded">play_circle</span>
+                Marathi HUB
+            </div>
+        </div>
+        <div class="search-box mobile-hide">
+            <input type="text" id="search-inp" placeholder="Search..." onkeyup="handleSearch()">
+            <div class="search-btn"><span class="material-symbols-rounded">search</span></div>
+        </div>
+        <div class="nav-right">
+            <button class="icon-btn" onclick="openNotificationPage()">
+                <span class="material-symbols-rounded">notifications</span>
+                <div class="notif-badge" id="notif-dot"></div>
+            </button>
+            
+            <div id="user-auth-btn">
+                <button class="btn-pill" onclick="openUserLogin()" style="border:1px solid var(--border);">
+                    <span class="material-symbols-rounded">account_circle</span> Sign In
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="sidebar" id="sidebar">
+        <div class="menu-item active" onclick="goHome()" id="m-home">
+            <span class="material-symbols-rounded">home</span> Home
+        </div>
+        <div class="menu-item" onclick="openHistory()" id="m-history">
+            <span class="material-symbols-rounded">history</span> History
+        </div>
+        <div class="menu-item" onclick="openLiked()" id="m-liked">
+            <span class="material-symbols-rounded">thumb_up</span> Liked Videos
+        </div>
+        
+        <hr style="border:0; border-top:1px solid var(--border); margin:10px 0;">
+        
+        <div id="custom-pages-list"></div>
+
+        <hr style="border:0; border-top:1px solid var(--border); margin:10px 0;">
+
+        <div class="menu-item" onclick="handleAdminClick()" style="color: var(--accent-red); font-weight: 600;">
+            <span class="material-symbols-rounded">admin_panel_settings</span> Admin Panel
+        </div>
+    </div>
+
+    <div class="main-container" id="main-view">
+        <h2 id="view-title" style="margin-bottom:16px;">Home</h2>
+        
+        <div class="grid" id="video-grid">
+             <p style="padding:20px;">Loading...</p>
+        </div>
+        
+        <div class="notif-page-container" id="notif-view">
+            <h3>Notifications</h3>
+            <div id="notif-list-full"></div>
+        </div>
+
+        <div id="custom-page-render" style="display:none; padding:20px;"></div>
+    </div>
+
+    <div class="watch-overlay" id="watch-view">
+        <div class="watch-grid">
+            <div class="player-section">
+                <button onclick="closeWatch()" style="padding:10px; font-weight:600;">&larr; Back</button>
+                <div class="video-frame">
+                    <iframe id="main-player" allow="autoplay" allowfullscreen></iframe>
+                </div>
+                <div class="video-info">
+                    <h1 id="w-title">Video Title</h1>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <img src="" class="avatar global-chn-logo">
+                            <div>
+                                <h4 style="font-size:14px;">Marathi HUB</h4>
+                                <span style="font-size:12px; color:var(--text-light);">Official Channel</span>
+                            </div>
+                        </div>
+                        <button class="btn-pill" id="like-btn" onclick="toggleLike()">
+                            <span class="material-symbols-rounded" id="like-icon">thumb_up</span> 
+                            <span id="w-likes">0</span>
+                        </button>
+                    </div>
+                    <div style="background:var(--secondary); padding:12px; border-radius:8px; margin-top:14px; font-size:13px; white-space: pre-wrap;" id="w-desc">
+                        Description
+                    </div>
+                </div>
+            </div>
+
+            <div style="padding:16px;">
+                <h3>Related Videos</h3>
+                <div id="related-container" style="margin-top:15px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container studio-container" id="studio-view">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2>Admin Studio</h2>
+            <div>
+                <button class="btn-pill" onclick="switchStudioTab('settings')" style="display:inline-flex;">Settings</button>
+                <button class="btn-pill" onclick="switchStudioTab('videos')" style="display:inline-flex; background:var(--primary); color:white;">Videos</button>
+                <button class="btn-pill" onclick="closeStudio()" style="margin-left:10px;">Exit</button>
+            </div>
+        </div>
+        
+        <div id="studio-videos-tab">
+            <div style="margin-bottom:15px;">
+                <button class="btn-pill" onclick="openPageModal()">+ Add Page</button>
+                <button class="btn-pill" onclick="openUploadModal()" style="margin-top:5px;">+ Upload Video</button>
+            </div>
+            <div id="studio-list"></div>
+        </div>
+
+        <div id="studio-settings-tab" style="display:none;">
+            <h3>App Settings</h3>
+            <label style="font-size:13px; font-weight:600; color:gray;">Channel Logo URL</label>
+            <input type="text" id="set-logo-url" class="inp-field" placeholder="https://example.com/logo.png">
+            <button class="btn-primary" onclick="saveSettings()">Save Settings</button>
+        </div>
+    </div>
+
+    <div class="modal-wrap" id="pin-modal">
+        <div class="modal-box" style="text-align:center;">
+            <span class="material-symbols-rounded" style="font-size:40px; color:var(--accent-red);">lock</span>
+            <h3>Enter Security PIN</h3>
+            <input type="password" id="pin-input" class="inp-field" style="text-align:center; letter-spacing:4px;" placeholder="XXXXXXXXXX">
+            <button class="btn-primary" onclick="verifyPin()">Unlock</button>
+            <button onclick="closeModals()" style="margin-top:10px; font-size:12px; text-decoration:underline;">Cancel</button>
+        </div>
+    </div>
+
+    <div class="modal-wrap" id="admin-auth-modal">
+        <div class="modal-box">
+            <h3>Admin Login</h3>
+            <input type="email" id="adm-email" class="inp-field" placeholder="Admin Gmail">
+            <input type="password" id="adm-pass" class="inp-field" placeholder="Password">
+            <button class="btn-primary" onclick="adminLogin()">Login</button>
+        </div>
+    </div>
+
+    <div class="modal-wrap" id="user-auth-modal">
+        <div class="modal-box">
+            <h3 id="u-auth-title">User Sign In</h3>
+            <input type="text" id="u-user" class="inp-field" placeholder="Username">
+            <input type="password" id="u-pass" class="inp-field" placeholder="Password">
+            <button class="btn-primary" onclick="userAuthAction()">Continue</button>
+            <p style="margin-top:10px; font-size:12px; cursor:pointer; color:var(--primary);" onclick="toggleUserMode()" id="u-mode-text">New user? Create Account</p>
+            <button onclick="closeModals()" style="position:absolute; top:10px; right:10px;">✕</button>
+        </div>
+    </div>
+
+    <div class="modal-wrap" id="upload-modal">
+        <div class="modal-box">
+            <h3 id="up-title">Upload Video</h3>
+            <input type="hidden" id="vid-id">
+            <input type="text" id="vid-title" class="inp-field" placeholder="Title">
+            <input type="text" id="vid-thumb" class="inp-field" placeholder="Thumbnail URL">
+            <input type="text" id="vid-url" class="inp-field" placeholder="Video URL">
+            <textarea id="vid-desc" class="inp-field" rows="3" placeholder="Description"></textarea>
+            <button class="btn-primary" onclick="saveVideo()">Save</button>
+            <button onclick="closeModals()" style="margin-top:10px;">Cancel</button>
+        </div>
+    </div>
+
+    <div class="modal-wrap" id="page-modal">
+        <div class="modal-box">
+            <h3>Manage Page</h3>
+            <input type="hidden" id="page-id">
+            <input type="text" id="page-title" class="inp-field" placeholder="Page Title">
+            <textarea id="page-html" class="inp-field" rows="5" placeholder="HTML Code"></textarea>
+            <button class="btn-primary" onclick="savePage()">Save Page</button>
+            <button onclick="closeModals()" style="margin-top:10px;">Cancel</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { getDatabase, ref, push, set, onValue, remove, update, get, runTransaction } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+
+        // --- FIREBASE CONFIG (Put your details here) ---
+        const firebaseConfig = {
+  apiKey: "AIzaSyDtq0I9mZ1e_M-XE-pW8GMdnA67U49YeeI",
+  authDomain: "serial-hub-b6f78.firebaseapp.com",
+  databaseURL: "https://serial-hub-b6f78-default-rtdb.firebaseio.com",
+  projectId: "serial-hub-b6f78",
+  storageBucket: "serial-hub-b6f78.firebasestorage.app",
+  messagingSenderId: "557351176946",
+  appId: "1:557351176946:web:5da9a89ec34dec5fa85e6b"
+};
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // --- STATE ---
+        let currentUser = null;
+        let allVideos = {};
+        let allPages = {};
+        let currentVidId = null;
+        let isUserSignup = false;
+        let globalLogoUrl = "https://ui-avatars.com/api/?name=Marathi+HUB&background=0D8ABC&color=fff"; // Default
+
+        // --- AUTH ---
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                const name = user.email.includes('@marathihub.app') ? user.email.split('@')[0] : "Admin";
+                document.getElementById('user-auth-btn').innerHTML = `
+                    <button class="btn-pill" onclick="handleLogout()" style="background:var(--black); color:white;">
+                        <span class="material-symbols-rounded">person</span> ${name}
+                    </button>`;
+            } else {
+                document.getElementById('user-auth-btn').innerHTML = `
+                    <button class="btn-pill" onclick="openUserLogin()" style="border:1px solid var(--border);">
+                        <span class="material-symbols-rounded">account_circle</span> Sign In
+                    </button>`;
+            }
+        });
+
+        // --- DATA LOADING ---
+        
+        // 1. Settings (Logo)
+        onValue(ref(db, 'settings'), (snap) => {
+            const data = snap.val();
+            if(data && data.logoUrl) {
+                globalLogoUrl = data.logoUrl;
+                document.getElementById('set-logo-url').value = data.logoUrl;
+            }
+            // Update all logo instances
+            document.querySelectorAll('.global-chn-logo').forEach(img => img.src = globalLogoUrl);
+        });
+
+        // 2. Videos
+        onValue(ref(db, 'videos'), (snap) => {
+            allVideos = snap.val() || {};
+            // Refresh view if on Home
+            if(document.getElementById('view-title').innerText === 'Home' && document.getElementById('main-view').style.display !== 'none') {
+                renderGrid(allVideos);
+            }
+            renderStudioList();
+            checkNotifications();
+        });
+
+        // 3. Pages
+        onValue(ref(db, 'pages'), (snap) => {
+            allPages = snap.val() || {};
+            renderSidebarPages();
+        });
+
+        // --- RENDER FUNCTIONS ---
+        window.renderGrid = (videos, isHistory=false) => {
+            const grid = document.getElementById('video-grid');
+            grid.innerHTML = "";
+            document.getElementById('notif-view').style.display = 'none';
+            document.getElementById('custom-page-render').style.display = 'none';
+            grid.style.display = 'grid';
+
+            const items = Object.entries(videos).map(([k,v])=>({...v, id:k}));
+            if(!isHistory) items.reverse();
+
+            if(items.length === 0) { grid.innerHTML = "<p>No videos found.</p>"; return; }
+
+            items.forEach((v, index) => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.style.animationDelay = `${index * 0.05}s`; // Stagger animation
+                div.onclick = () => openWatch(v.id);
+                div.innerHTML = `
+                    <div class="thumb"><img src="${v.thumbnail}" onerror="this.src='https://via.placeholder.com/300'"></div>
+                    <div class="meta">
+                        <img src="${globalLogoUrl}" class="avatar global-chn-logo">
+                        <div class="details">
+                            <h3>${v.title}</h3>
+                            <p>Marathi HUB</p>
+                            <p>${v.views || 0} views</p>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        // --- NOTIFICATION PAGE LOGIC ---
+        function checkNotifications() {
+            const recentCount = Object.keys(allVideos).length;
+            // Simple logic: if videos exist, show dot
+            document.getElementById('notif-dot').style.display = recentCount > 0 ? 'block' : 'none';
+        }
+
+        window.openNotificationPage = () => {
+            document.getElementById('view-title').innerText = "Notifications";
+            document.getElementById('video-grid').style.display = 'none';
+            document.getElementById('custom-page-render').style.display = 'none';
+            
+            const view = document.getElementById('notif-view');
+            view.style.display = 'block';
+            
+            const list = document.getElementById('notif-list-full');
+            list.innerHTML = "";
+            
+            const items = Object.entries(allVideos).reverse();
+            items.forEach(([id, v]) => {
+                const div = document.createElement('div');
+                div.className = 'notif-row';
+                div.onclick = () => openWatch(id);
+                div.innerHTML = `
+                    <img src="${v.thumbnail}">
+                    <div class="notif-content">
+                        <h4>${v.title}</h4>
+                        <p>Marathi HUB • Uploaded recently</p>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+            document.getElementById('sidebar').classList.remove('open');
+            // Hide red dot when page opened
+            document.getElementById('notif-dot').style.display = 'none';
+        };
+
+        // --- WATCH LOGIC ---
+        window.openWatch = (id) => {
+            currentVidId = id;
+            const v = allVideos[id];
+            if(!v) return;
+
+            // Increment View
+            runTransaction(ref(db, `videos/${id}/views`), (c) => (c || 0) + 1);
+            
+            // History
+            if(currentUser) {
+                const uid = currentUser.uid;
+                set(ref(db, `users/${uid}/history/${id}`), {
+                    id: id,
+                    title: v.title,
+                    thumbnail: v.thumbnail,
+                    views: v.views,
+                    timestamp: Date.now()
+                });
+            }
+
+            document.getElementById('watch-view').style.display = 'block';
+            document.getElementById('main-player').src = convertUrl(v.videoUrl);
+            document.getElementById('w-title').innerText = v.title;
+            document.getElementById('w-desc').innerText = v.description || "";
+            
+            // Check Like Status
+            updateLikeButtonUI(id);
+
+            // Related Videos
+            const relContainer = document.getElementById('related-container');
+            relContainer.innerHTML = "";
+            const others = Object.entries(allVideos).filter(([k,_]) => k !== id).reverse().slice(0, 8);
+            others.forEach(([rid, rv]) => {
+                const rDiv = document.createElement('div');
+                rDiv.className = 'related-card';
+                rDiv.onclick = () => openWatch(rid);
+                rDiv.innerHTML = `
+                    <div class="related-thumb"><img src="${rv.thumbnail}" style="width:100%; height:100%; object-fit:cover;"></div>
+                    <div style="font-size:13px; font-weight:500;">
+                        <div style="margin-bottom:4px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">${rv.title}</div>
+                        <div style="color:var(--text-light);">Marathi HUB</div>
+                    </div>
+                `;
+                relContainer.appendChild(rDiv);
+            });
+        }
+
+        function convertUrl(url) {
+            if(!url) return "";
+            if(url.includes("youtube.com") || url.includes("youtu.be")) {
+                const id = url.split("v=")[1] || url.split("/").pop();
+                return `https://www.youtube.com/embed/${id}?autoplay=1`;
+            }
+            return url;
+        }
+
+        window.closeWatch = () => {
+            document.getElementById('watch-view').style.display = 'none';
+            document.getElementById('main-player').src = "";
+            currentVidId = null;
+        }
+
+        // --- LIKE SYSTEM FIX (1 User = 1 Like) ---
+        function updateLikeButtonUI(vidId) {
+            const btn = document.getElementById('like-btn');
+            const icon = document.getElementById('like-icon');
+            const countEl = document.getElementById('w-likes');
+            
+            // Get Total Count
+            get(ref(db, `videos/${vidId}/likesCount`)).then(snap => {
+                countEl.innerText = snap.val() || 0;
+            });
+
+            // Check if user liked
+            if(currentUser) {
+                get(ref(db, `likes/${vidId}/${currentUser.uid}`)).then(snap => {
+                    if(snap.exists()) {
+                        btn.classList.add('active');
+                        icon.innerText = "thumb_up_alt"; // Filled Icon
+                    } else {
+                        btn.classList.remove('active');
+                        icon.innerText = "thumb_up"; // Outline Icon
+                    }
+                });
+            } else {
+                btn.classList.remove('active');
+                icon.innerText = "thumb_up";
+            }
+        }
+
+        window.toggleLike = () => {
+            if(!currentUser) return openUserLogin();
+            if(!currentVidId) return;
+
+            const likePath = `likes/${currentVidId}/${currentUser.uid}`;
+            const videoLikeCountPath = `videos/${currentVidId}/likesCount`;
+
+            get(ref(db, likePath)).then(snap => {
+                if(snap.exists()) {
+                    // Already Liked -> UNLIKE
+                    remove(ref(db, likePath));
+                    runTransaction(ref(db, videoLikeCountPath), (c) => (c || 0) > 0 ? c - 1 : 0);
+                    
+                    // Remove from User's Liked List
+                    remove(ref(db, `users/${currentUser.uid}/likedVideos/${currentVidId}`));
+
+                    document.getElementById('like-btn').classList.remove('active');
+                    document.getElementById('like-icon').innerText = "thumb_up";
+                    const el = document.getElementById('w-likes');
+                    el.innerText = Math.max(0, parseInt(el.innerText) - 1);
+
+                } else {
+                    // Not Liked -> LIKE
+                    set(ref(db, likePath), true);
+                    runTransaction(ref(db, videoLikeCountPath), (c) => (c || 0) + 1);
+
+                    // Add to User's Liked List (For "Liked Videos" Page)
+                    const v = allVideos[currentVidId];
+                    set(ref(db, `users/${currentUser.uid}/likedVideos/${currentVidId}`), {
+                        id: currentVidId,
+                        title: v.title,
+                        thumbnail: v.thumbnail,
+                        views: v.views
+                    });
+
+                    document.getElementById('like-btn').classList.add('active');
+                    document.getElementById('like-icon').innerText = "thumb_up_alt";
+                    const el = document.getElementById('w-likes');
+                    el.innerText = parseInt(el.innerText) + 1;
+                }
+            });
+        }
+
+        // --- AUTH ---
+        window.openUserLogin = () => document.getElementById('user-auth-modal').style.display = 'flex';
+        window.toggleUserMode = () => {
+            isUserSignup = !isUserSignup;
+            document.getElementById('u-auth-title').innerText = isUserSignup ? "Create Account" : "User Sign In";
+            document.getElementById('u-mode-text').innerText = isUserSignup ? "Already have an account? Sign In" : "New user? Create Account";
+        }
+        window.userAuthAction = async () => {
+            const u = document.getElementById('u-user').value.trim();
+            const p = document.getElementById('u-pass').value;
+            if(!u || !p) return alert("Enter credentials");
+            const email = `${u}@marathihub.app`; 
+            try {
+                if(isUserSignup) {
+                    await createUserWithEmailAndPassword(auth, email, p);
+                    alert("Account Created!");
+                } else {
+                    await signInWithEmailAndPassword(auth, email, p);
+                }
+                closeModals();
+            } catch(e) { alert(e.message); }
+        }
+        window.handleLogout = () => { if(confirm("Logout?")) signOut(auth); }
+
+        // --- ADMIN ---
+        window.handleAdminClick = () => {
+            if(currentUser && !currentUser.email.includes("@marathihub.app")) openStudio();
+            else {
+                document.getElementById('pin-input').value = "";
+                document.getElementById('pin-modal').style.display = 'flex';
+            }
+        }
+        window.verifyPin = () => {
+            if(document.getElementById('pin-input').value === "9359752972") {
+                document.getElementById('pin-modal').style.display = 'none';
+                document.getElementById('admin-auth-modal').style.display = 'flex';
+            } else alert("Wrong PIN!");
+        }
+        window.adminLogin = async () => {
+            const e = document.getElementById('adm-email').value;
+            const p = document.getElementById('adm-pass').value;
+            try { await signInWithEmailAndPassword(auth, e, p); closeModals(); openStudio(); } 
+            catch(err) { alert(err.message); }
+        }
+
+        // --- STUDIO ---
+        window.openStudio = () => {
+            document.getElementById('studio-view').style.display = 'block';
+            document.getElementById('main-view').style.display = 'none';
+            document.getElementById('sidebar').classList.remove('open');
+            switchStudioTab('videos');
+        }
+        window.closeStudio = () => {
+            document.getElementById('studio-view').style.display = 'none';
+            document.getElementById('main-view').style.display = 'block';
+            goHome();
+        }
+        window.switchStudioTab = (tab) => {
+            document.getElementById('studio-videos-tab').style.display = tab === 'videos' ? 'block' : 'none';
+            document.getElementById('studio-settings-tab').style.display = tab === 'settings' ? 'block' : 'none';
+        }
+
+        // Studio Settings
+        window.saveSettings = () => {
+            const url = document.getElementById('set-logo-url').value;
+            update(ref(db, 'settings'), { logoUrl: url });
+            alert("Settings Saved!");
+        }
+
+        function renderStudioList() {
+            const list = document.getElementById('studio-list');
+            list.innerHTML = "<h4>Videos</h4>";
+            Object.entries(allVideos).reverse().forEach(([id, v]) => {
+                list.innerHTML += `
+                    <div class="video-row">
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <img src="${v.thumbnail}" style="width:60px; height:34px; border-radius:4px;">
+                            <span>${v.title}</span>
+                        </div>
+                        <div>
+                            <button onclick="editVideo('${id}')">✏️</button>
+                            <button onclick="deleteVideo('${id}')" style="color:red;">🗑️</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        // --- CRUD ---
+        window.openUploadModal = () => {
+            document.getElementById('up-title').innerText = "Upload Video";
+            document.getElementById('vid-id').value = "";
+            document.getElementById('vid-title').value = "";
+            document.getElementById('vid-thumb').value = "";
+            document.getElementById('vid-url').value = "";
+            document.getElementById('vid-desc').value = "";
+            document.getElementById('upload-modal').style.display = 'flex';
+        }
+        window.editVideo = (id) => {
+            const v = allVideos[id];
+            document.getElementById('up-title').innerText = "Edit Video";
+            document.getElementById('vid-id').value = id;
+            document.getElementById('vid-title').value = v.title;
+            document.getElementById('vid-thumb').value = v.thumbnail;
+            document.getElementById('vid-url').value = v.videoUrl;
+            document.getElementById('vid-desc').value = v.description;
+            document.getElementById('upload-modal').style.display = 'flex';
+        }
+        window.saveVideo = () => {
+            const id = document.getElementById('vid-id').value;
+            const data = {
+                title: document.getElementById('vid-title').value,
+                thumbnail: document.getElementById('vid-thumb').value,
+                videoUrl: document.getElementById('vid-url').value,
+                description: document.getElementById('vid-desc').value,
+                channel: "Marathi HUB"
+            };
+            if(id) update(ref(db, `videos/${id}`), data);
+            else push(ref(db, 'videos'), { ...data, views: 0, likesCount: 0 });
+            closeModals();
+        }
+        window.deleteVideo = (id) => { if(confirm("Delete?")) remove(ref(db, `videos/${id}`)); }
+
+        // Pages CRUD
+        window.openPageModal = () => { document.getElementById('page-id').value=""; document.getElementById('page-title').value=""; document.getElementById('page-html').value=""; document.getElementById('page-modal').style.display='flex'; }
+        window.savePage = () => {
+            const id=document.getElementById('page-id').value;
+            const data={title:document.getElementById('page-title').value, html:document.getElementById('page-html').value};
+            if(id) update(ref(db,`pages/${id}`), data); else push(ref(db,'pages'), data);
+            closeModals();
+        }
+        function renderSidebarPages() {
+            const list = document.getElementById('custom-pages-list');
+            list.innerHTML="";
+            Object.entries(allPages).forEach(([id,p])=>{
+                const div=document.createElement('div'); div.className='menu-item';
+                div.innerHTML=`<span class="material-symbols-rounded">article</span> ${p.title}`;
+                div.onclick=()=>{
+                    document.getElementById('video-grid').style.display='none';
+                    document.getElementById('notif-view').style.display='none';
+                    document.getElementById('view-title').innerText=p.title;
+                    const c=document.getElementById('custom-page-render'); c.style.display='block'; c.innerHTML=p.html;
+                    document.getElementById('sidebar').classList.remove('open');
+                };
+                list.appendChild(div);
+            });
+        }
+
+        // --- HISTORY & LIKED VIDEOS PAGE ---
+        window.openHistory = () => {
+            if(!currentUser) return openUserLogin();
+            document.getElementById('view-title').innerText = "Watch History";
+            get(ref(db, `users/${currentUser.uid}/history`)).then(snap => {
+                renderGrid(snap.val() || {}, true);
+                document.getElementById('sidebar').classList.remove('open');
+            });
+        }
+
+        window.openLiked = () => {
+            if(!currentUser) return openUserLogin();
+            document.getElementById('view-title').innerText = "Liked Videos";
+            
+            get(ref(db, `users/${currentUser.uid}/likedVideos`)).then(snap => {
+                const data = snap.val();
+                if(!data) {
+                    document.getElementById('video-grid').innerHTML = "<p style='padding:20px'>No liked videos yet.</p>";
+                    document.getElementById('notif-view').style.display = 'none';
+                    document.getElementById('custom-page-render').style.display = 'none';
+                    document.getElementById('video-grid').style.display = 'grid';
+                } else {
+                    renderGrid(data, true);
+                }
+                document.getElementById('sidebar').classList.remove('open');
+            });
+        }
+
+        // Utils
+        window.goHome = () => {
+            document.getElementById('view-title').innerText = "Home";
+            renderGrid(allVideos);
+            document.getElementById('sidebar').classList.remove('open');
+            closeWatch();
+        }
+        window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('open');
+        window.closeModals = () => document.querySelectorAll('.modal-wrap').forEach(e => e.style.display = 'none');
+        window.handleSearch = () => {
+            const q = document.getElementById('search-inp').value.toLowerCase();
+            const fil = {};
+            Object.entries(allVideos).forEach(([k,v]) => { if(v.title.toLowerCase().includes(q)) fil[k] = v; });
+            renderGrid(fil);
+        }
+
+    </script>
+</body>
+</html>
